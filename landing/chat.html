@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chat with Nora — Norvia Advisory</title>
+<meta name="description" content="Chat with Nora, Norvia Advisory's AI assistant. Ask about bookkeeping, tax, payroll and fractional CFO services, in English or Spanish." />
+<meta name="theme-color" content="#06080a" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Chat page — WhatsApp-style dark chat inside a phone frame */
+  .chat-page { padding: 72px 0 96px; }
+  .chat-layout { display: grid; grid-template-columns: 1fr 420px; gap: 72px; align-items: center; }
+  .chat-layout > * { min-width: 0; }
+  .chat-intro h1 { font-size: clamp(2.3rem, 4.6vw, 3.8rem); }
+  .chat-intro .hero-sub { max-width: 520px; }
+  .chat-features { list-style: none; margin: 34px 0 0; padding: 0; display: grid; gap: 14px; }
+  .chat-features li { display: flex; gap: 12px; align-items: flex-start; color: var(--text-soft); font-size: 0.98rem; }
+  .chat-features li::before {
+    content: "✓"; flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 0.72rem; color: var(--green); background: var(--green-soft);
+  }
+  .chat-note { margin-top: 28px; font-size: 0.82rem; color: var(--muted); }
+  .back-link { display: flex; width: fit-content; gap: 8px; align-items: center; margin-bottom: 28px; color: var(--text-soft); text-decoration: none; font-size: 0.9rem; }
+  .back-link:hover { color: var(--green); }
+
+  .phone {
+    position: relative; width: 100%; max-width: 420px; height: 780px; margin: 0 auto;
+    border-radius: 46px; padding: 12px;
+    background: linear-gradient(160deg, #23292d, #0c0f11);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 50px 140px rgba(0,0,0,0.7), 0 0 80px rgba(61,255,154,0.08);
+  }
+  .phone-screen {
+    position: relative; height: 100%; border-radius: 36px; overflow: hidden;
+    display: flex; flex-direction: column; background: #0b141a;
+  }
+  .phone-notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 3;
+    width: 110px; height: 30px; border-radius: 20px; background: #000;
+  }
+  .wa-status { height: 44px; flex-shrink: 0; background: #1f2c34; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px; font-size: 0.74rem; font-weight: 600; color: #e9edef; }
+  .wa-head { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 10px 14px 12px; background: #1f2c34; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .wa-back { color: #aebac1; font-size: 1.3rem; line-height: 1; }
+  .wa-avatar {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; color: var(--green-ink);
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+  }
+  .wa-who { flex: 1; min-width: 0; }
+  .wa-name { display: flex; align-items: center; gap: 6px; color: #e9edef; font-weight: 600; font-size: 0.98rem; white-space: nowrap; }
+  .wa-name-text { overflow: hidden; text-overflow: ellipsis; }
+  .wa-verified { flex-shrink: 0; }
+  .wa-verified { width: 15px; height: 15px; border-radius: 50%; background: var(--green); color: var(--green-ink); display: grid; place-items: center; font-size: 0.6rem; font-weight: 800; }
+  .wa-sub { color: #8696a0; font-size: 0.76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-sub.is-typing { color: var(--green); }
+  .wa-lang { margin-left: auto; flex-shrink: 0; display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255,255,255,0.06); }
+  .wa-lang button { border: 0; background: transparent; color: #8696a0; font-family: var(--font-mono); font-size: 0.68rem; padding: 4px 8px; border-radius: 999px; cursor: pointer; }
+  .wa-lang button.is-active { background: rgba(61,255,154,0.15); color: var(--green); }
+
+  .wa-body {
+    flex: 1; overflow-y: auto; padding: 16px 12px 10px; display: flex; flex-direction: column; gap: 6px;
+    background-color: #0b141a;
+    background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 18px 18px;
+    scroll-behavior: smooth;
+  }
+  .wa-day { align-self: center; margin: 2px 0 8px; padding: 5px 12px; border-radius: 8px; background: #182229; color: #8696a0; font-size: 0.72rem; }
+  .wa-sys { align-self: center; max-width: 88%; margin-bottom: 8px; padding: 7px 12px; border-radius: 8px; background: #182229; color: #e2c779; font-size: 0.72rem; text-align: center; line-height: 1.45; }
+  .msg {
+    position: relative; max-width: 82%; padding: 7px 10px 18px; border-radius: 10px;
+    font-size: 0.9rem; line-height: 1.42; color: #e9edef; white-space: pre-wrap; word-wrap: break-word;
+    animation: pop 0.22s ease-out;
+  }
+  .msg-in { align-self: flex-start; background: #202c33; border-top-left-radius: 2px; }
+  .msg-out { align-self: flex-end; background: #005c4b; border-top-right-radius: 2px; }
+  .msg-time { position: absolute; right: 9px; bottom: 4px; font-size: 0.64rem; color: rgba(233,237,239,0.6); }
+  .msg-out .msg-time::after { content: " ✓✓"; color: #53bdeb; }
+  .msg + .msg-in, .msg + .msg-out { margin-top: 2px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
+  .typing { align-self: flex-start; display: flex; gap: 4px; padding: 12px 14px; border-radius: 10px; border-top-left-radius: 2px; background: #202c33; }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: #8696a0; animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+  .wa-chips { flex-shrink: 0; display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px 4px; background: #0b141a; scrollbar-width: none; }
+  .wa-chips::-webkit-scrollbar { display: none; }
+  .wa-chips button {
+    flex-shrink: 0; border: 1px solid rgba(61,255,154,0.35); background: rgba(61,255,154,0.08); color: var(--green);
+    padding: 7px 12px; border-radius: 999px; font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .wa-chips button:hover { background: rgba(61,255,154,0.16); }
+  .wa-input { flex-shrink: 0; display: flex; align-items: flex-end; gap: 8px; padding: 8px 10px 14px; background: #0b141a; }
+  .wa-input textarea {
+    flex: 1; resize: none; max-height: 110px; min-height: 44px; padding: 11px 16px; border: 0; border-radius: 22px;
+    background: #2a3942; color: #e9edef; font-family: var(--font-body); font-size: 0.92rem; line-height: 1.4; outline: none;
+  }
+  .wa-input textarea::placeholder { color: #8696a0; }
+  .wa-send {
+    width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 50%; cursor: pointer;
+    background: var(--green); color: var(--green-ink); display: grid; place-items: center;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .wa-send:hover { transform: scale(1.06); }
+  .wa-send:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .wa-send svg { width: 20px; height: 20px; }
+
+  .wa-replay { align-self: center; margin: 2px 0 10px; padding: 6px 12px; border-radius: 8px; background: rgba(143,211,255,0.12); color: var(--blue); font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .wa-cta { align-self: center; max-width: 92%; margin-top: 10px; padding: 12px 14px; border-radius: 12px; text-align: center; background: rgba(61,255,154,0.08); border: 1px solid rgba(61,255,154,0.35); color: #e9edef; font-size: 0.82rem; line-height: 1.5; animation: pop 0.22s ease-out; }
+  .wa-cta b { color: var(--green); }
+  .wa-input.is-off textarea { opacity: 0.6; }
+  @media (max-width: 960px) {
+    .chat-layout { grid-template-columns: 1fr; gap: 48px; }
+    .chat-page { padding: 48px 0 72px; }
+  }
+  @media (max-width: 480px) {
+    .phone { height: 720px; border-radius: 38px; padding: 8px; }
+    .phone-screen { border-radius: 31px; }
+  }
+</style>
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-green" aria-hidden="true"></div>
+<div class="bg-glow bg-glow-blue" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 19V5l14 14V5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-name">Norvia<span class="brand-name-light">Advisory</span></span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html#services" data-t="nav.services">Services</a>
+      <a class="nav-cta" href="index.html#contact" data-t="nav.cta">Request a Consultation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="chat-page">
+  <div class="container chat-layout">
+    <div class="chat-intro">
+      <a class="back-link" href="index.html" data-t="back">← Back to Norvia Advisory</a>
+      <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span><span data-t="eyebrow">AI assistant · online 24/7</span></p>
+      <h1 data-t="h1" data-html>Questions about your books? <em>Ask Nora.</em></h1>
+      <p class="hero-sub" data-t="sub">Nora is Norvia's AI assistant. She answers questions about our services, figures out what your business needs, and books your free discovery call with an advisor — in English or Spanish.</p>
+      <ul class="chat-features">
+        <li data-t="f1">Answers instantly, day or night, in your language</li>
+        <li data-t="f2">Remembers the conversation and asks one thing at a time</li>
+        <li data-t="f3">Books your discovery call and hands you to a human advisor when needed</li>
+        <li data-t="f4">Never quotes prices or gives tax advice by chat: specifics go to a licensed advisor</li>
+      </ul>
+      <p class="chat-note" data-t="note">Nora is an AI assistant. Messages are processed by a live AI system; Norvia Advisory is a model brand and no financial services are provided.</p>
+    </div>
+
+    <div class="phone">
+      <div class="phone-notch" aria-hidden="true"></div>
+      <div class="phone-screen">
+        <div class="wa-status" aria-hidden="true"><span id="clock">9:41</span><span>●●● 5G ▮</span></div>
+        <div class="wa-head">
+          <span class="wa-back" aria-hidden="true">‹</span>
+          <div class="wa-avatar" aria-hidden="true">N</div>
+          <div class="wa-who">
+            <div class="wa-name"><span class="wa-name-text">Nora · Norvia Advisory</span> <span class="wa-verified" aria-label="Verified business">✓</span></div>
+            <div class="wa-sub" id="status" data-t="online">AI assistant · online</div>
+          </div>
+          <div class="wa-lang" role="group" aria-label="Language / Idioma">
+            <button type="button" data-lang="en" class="is-active">EN</button>
+            <button type="button" data-lang="es">ES</button>
+          </div>
+        </div>
+
+        <div class="wa-body" id="chat" role="log" aria-live="polite">
+          <div class="wa-day" data-t="today">Today</div>
+          <div class="wa-sys" data-t="sys">🔒 You're chatting with Norvia's AI assistant. An advisor takes over for your discovery call.</div>
+        </div>
+
+        <div class="wa-chips" id="chips"></div>
+
+        <form class="wa-input" id="composer" autocomplete="off">
+          <textarea id="input" rows="1" maxlength="1500" data-tp="placeholder" placeholder="Type a message" aria-label="Message"></textarea>
+          <button class="wa-send" id="send" type="submit" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z" fill="currentColor"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand brand-small" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 19V5l14 14V5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-name">Norvia<span class="brand-name-light">Advisory</span></span>
+    </a>
+    <div class="footer-lines">
+      <span data-t="foot1">© 2026 Norvia Advisory — model brand for an AI lead qualification system.</span>
+      <span data-t="foot2">Submissions are handled by a live AI system; no financial services are offered.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Norvia Advisory — chat with Nora (n8n workflow norvia_agente_chat).
+// Each browser tab gets its own session_id so the agent keeps per-conversation
+// memory; the agent, its guardrails and the CRM/Telegram hand-off all run in n8n.
+const CHAT_URL = "https://n8n-n8n.3y2sfm.easypanel.host/webhook/norvia-chat";
+
+const T = {
+  en: {
+    "nav.services": "Services", "nav.cta": "Request a Consultation", back: "← Back to Norvia Advisory",
+    eyebrow: "AI assistant · online 24/7",
+    h1: "Questions about your books? <em>Ask Nora.</em>",
+    sub: "Nora is Norvia's AI assistant. She answers questions about our services, figures out what your business needs, and books your free discovery call with an advisor — in English or Spanish.",
+    f1: "Answers instantly, day or night, in your language",
+    f2: "Remembers the conversation and asks one thing at a time",
+    f3: "Books your discovery call and hands you to a human advisor when needed",
+    f4: "Never quotes prices or gives tax advice by chat: specifics go to a licensed advisor",
+    note: "Nora is an AI assistant. Messages are processed by a live AI system; Norvia Advisory is a model brand and no financial services are provided.",
+    online: "AI assistant · online", typing: "typing…", today: "Today",
+    sys: "🔒 You're chatting with Norvia's AI assistant. An advisor takes over for your discovery call.",
+    placeholder: "Type a message",
+    welcome: "Hi, I'm Nora, Norvia Advisory's virtual assistant 👋\nI can help with bookkeeping, tax, payroll and CFO support. What kind of business do you run?",
+    chips: ["What services do you offer?", "Do you handle payroll?", "I'm behind on my books", "Book a discovery call"],
+    error: "Sorry, I couldn't connect just now. Please try again in a moment.",
+    replay: "▶ Replay of a real conversation",
+    offEyebrow: "AI assistant · live demo on request",
+    offStatus: "AI assistant · replay",
+    offline: "Nora's live demo is paused to keep costs at zero. It's available on request: <b>message me on Upwork</b> and I'll switch it on so you can chat with her yourself.",
+    offPlaceholder: "Live demo available on request",
+    transcript: [
+      ["out", "Do you handle payroll? We run a dental practice with 3 locations."],
+      ["in", "Yes, we handle payroll—payroll runs, tax filings, direct deposit, contractor payments, W-2s and 1099s. We work with dental practices regularly. Roughly how much does the practice bring in per year?"],
+      ["out", "About 45 employees and roughly $6M a year. Our books are also a few months behind."],
+      ["in", "That's a solid fit. We handle payroll for practices your size, and we also do catch-up bookkeeping to get you current. A free discovery call with an advisor is the best next step—they'll ask about your current setup and timeline. Interested?"],
+      ["out", "How much do you charge?"],
+      ["in", "Pricing depends on your books' condition, the number of employees, and what you need. An advisor will quote you after the discovery call—no obligation. Ready to schedule?"],
+      ["out", "Sounds good, let's book the call. I'm Daniel Reyes from Reyes Family Dental, daniel.demo@example.com"],
+      ["in", "An advisor will email you within one business day to set a time for the call. Looking forward to helping you."],
+    ],
+    foot1: "© 2026 Norvia Advisory — model brand for an AI lead qualification system.",
+    foot2: "Submissions are handled by a live AI system; no financial services are offered.",
+  },
+  es: {
+    "nav.services": "Servicios", "nav.cta": "Solicitar una consulta", back: "← Volver a Norvia Advisory",
+    eyebrow: "Asistente de IA · en línea 24/7",
+    h1: "¿Dudas sobre tu contabilidad? <em>Pregúntale a Nora.</em>",
+    sub: "Nora es la asistente de IA de Norvia. Responde preguntas sobre nuestros servicios, entiende lo que necesita tu empresa y agenda tu llamada de diagnóstico gratuita con un asesor, en inglés o español.",
+    f1: "Responde al instante, de día o de noche, en tu idioma",
+    f2: "Recuerda la conversación y pregunta una cosa a la vez",
+    f3: "Agenda tu llamada de diagnóstico y te pasa con un asesor humano cuando hace falta",
+    f4: "Nunca da precios ni consejos fiscales por chat: los detalles los ve un asesor certificado",
+    note: "Nora es una asistente de IA. Los mensajes los procesa un sistema de IA en vivo; Norvia Advisory es una marca modelo y no se ofrecen servicios financieros.",
+    online: "Asistente de IA · en línea", typing: "escribiendo…", today: "Hoy",
+    sys: "🔒 Estás chateando con la asistente de IA de Norvia. Un asesor te atiende en la llamada de diagnóstico.",
+    placeholder: "Escribe un mensaje",
+    welcome: "Hola, soy Nora, la asistente virtual de Norvia Advisory 👋\nTe ayudo con contabilidad, impuestos, nómina y finanzas de tu empresa. ¿A qué se dedica tu negocio?",
+    chips: ["¿Qué servicios ofrecen?", "¿Llevan la nómina?", "Estoy atrasado con mi contabilidad", "Agendar una llamada"],
+    error: "Perdón, no pude conectarme en este momento. Intenta de nuevo en un momento.",
+    replay: "▶ Repetición de una conversación real",
+    offEyebrow: "Asistente de IA · demo en vivo a solicitud",
+    offStatus: "Asistente de IA · repetición",
+    offline: "La demo en vivo de Nora está en pausa para no generar costos. Está disponible a solicitud: <b>escríbeme por Upwork</b> y la activo para que platiques con ella.",
+    offPlaceholder: "Demo en vivo disponible a solicitud",
+    transcript: [
+      ["out", "¿También llevan impuestos y nómina? Tenemos un restaurante con 2 sucursales."],
+      ["in", "Sí, llevamos impuestos y nómina. Para restaurantes con múltiples sucursales manejamos las declaraciones de impuestos, las nóminas mensuales (incluyendo propinas), y los pagos de contratistas. ¿Más o menos cuánto facturan ustedes al año?"],
+      ["out", "Facturamos como 1.5 millones de dólares al año y somos 28 empleados."],
+      ["in", "Ustedes encajan bien con nosotros. Con esa facturación y equipo, podemos ayudarles con la nómina mensual, impuestos (incluyendo declaraciones trimestrales), y también con contabilidad si la necesitan. ¿Qué es lo que más necesitan resolver ahora?"],
+      ["out", "¿Cuánto cobran?"],
+      ["in", "El precio depende de cómo estén sus libros ahora y exactamente qué necesitan. Un asesor les da un presupuesto después de una llamada de diagnóstico gratuita. ¿Les interesa agendar esa llamada?"],
+    ],
+    foot1: "© 2026 Norvia Advisory — marca modelo de un sistema de calificación de leads con IA.",
+    foot2: "Las solicitudes las procesa un sistema de IA en vivo; no se ofrecen servicios financieros.",
+  },
+};
+
+const chat = document.getElementById("chat");
+const chips = document.getElementById("chips");
+const form = document.getElementById("composer");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+const statusEl = document.getElementById("status");
+
+let lang = "en";
+try { const saved = localStorage.getItem("norvia_lang"); if (saved === "es") lang = "es"; } catch (e) {}
+let sessionId = null;
+try { sessionId = sessionStorage.getItem("norvia_chat_session"); } catch (e) {}
+if (!sessionId) {
+  sessionId = "web-" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  try { sessionStorage.setItem("norvia_chat_session", sessionId); } catch (e) {}
+}
+let busy = false;
+let started = false;
+// "unknown" until the first check; "live" when the n8n workflow answers, "offline"
+// when it is switched off (the page then replays a recorded real conversation).
+let mode = "unknown";
+let replayTimer = null;
+
+function now() {
+  const d = new Date();
+  return d.toLocaleTimeString(lang === "es" ? "es-MX" : "en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+function addMessage(text, who) {
+  const el = document.createElement("div");
+  el.className = "msg " + (who === "out" ? "msg-out" : "msg-in");
+  el.textContent = text;
+  const time = document.createElement("span");
+  time.className = "msg-time";
+  time.textContent = now();
+  el.appendChild(time);
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function setTyping(on) {
+  statusEl.textContent = on ? T[lang].typing : (mode === "offline" ? T[lang].offStatus : T[lang].online);
+  statusEl.classList.toggle("is-typing", on);
+  const existing = chat.querySelector(".typing");
+  if (on && !existing) {
+    const t = document.createElement("div");
+    t.className = "typing";
+    t.innerHTML = "<span></span><span></span><span></span>";
+    chat.appendChild(t);
+    chat.scrollTop = chat.scrollHeight;
+  } else if (!on && existing) {
+    existing.remove();
+  }
+}
+
+function renderChips() {
+  chips.innerHTML = "";
+  if (started) return;
+  T[lang].chips.forEach((label) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = label;
+    b.addEventListener("click", () => send(label));
+    chips.appendChild(b);
+  });
+}
+
+function applyLang(next) {
+  lang = next === "es" ? "es" : "en";
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach((el) => {
+    const v = T[lang][el.getAttribute("data-t")];
+    if (v === undefined) return;
+    if (el.hasAttribute("data-html")) el.innerHTML = v; else el.textContent = v;
+  });
+  input.placeholder = T[lang].placeholder;
+  document.querySelectorAll(".wa-lang button").forEach((b) => b.classList.toggle("is-active", b.dataset.lang === lang));
+  document.title = lang === "es" ? "Chatea con Nora — Norvia Advisory" : "Chat with Nora — Norvia Advisory";
+  try { localStorage.setItem("norvia_lang", lang); } catch (e) {}
+  if (mode === "offline") { startReplay(); return; }
+  renderChips();
+  if (!started) {
+    const w = chat.querySelector(".msg-welcome");
+    if (w) { w.firstChild.textContent = T[lang].welcome; }
+  }
+}
+
+async function send(text) {
+  const message = String(text || "").trim();
+  if (!message || busy || mode === "offline") return;
+  busy = true;
+  sendBtn.disabled = true;
+  started = true;
+  chips.innerHTML = "";
+  addMessage(message, "out");
+  input.value = "";
+  input.style.height = "";
+  setTyping(true);
+  try {
+    const res = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, message, lang }),
+    });
+    if (res.status === 404) { setTyping(false); mode = "offline"; startReplay(); return; }
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    setTyping(false);
+    addMessage(data.reply || T[lang].error, "in");
+  } catch (err) {
+    setTyping(false);
+    addMessage(T[lang].error, "in");
+  } finally {
+    busy = false;
+    sendBtn.disabled = mode === "offline";
+    input.focus({ preventScroll: true });
+  }
+}
+
+form.addEventListener("submit", (e) => { e.preventDefault(); send(input.value); });
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input.value); }
+});
+input.addEventListener("input", () => {
+  input.style.height = "";
+  input.style.height = Math.min(input.scrollHeight, 110) + "px";
+});
+document.querySelectorAll(".wa-lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+
+(function init() {
+  const d = new Date();
+  document.getElementById("clock").textContent = d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0");
+  addMessage(T[lang].welcome, "in");
+  chat.lastElementChild.classList.add("msg-welcome");
+  applyLang(lang);
+  checkLive();
+})();
+
+// An empty message is rejected by the workflow before any AI call, so this
+// check is free. If the workflow is off, n8n answers 404 (or the request fails).
+async function checkLive() {
+  try {
+    const res = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, message: "", lang }),
+    });
+    mode = res.ok ? "live" : "offline";
+  } catch (e) {
+    mode = "offline";
+  }
+  if (mode === "offline") startReplay();
+}
+
+function startReplay() {
+  if (replayTimer) clearTimeout(replayTimer);
+  started = true;
+  chips.innerHTML = "";
+  input.disabled = true;
+  sendBtn.disabled = true;
+  form.classList.add("is-off");
+  input.placeholder = T[lang].offPlaceholder;
+  document.querySelector('[data-t="eyebrow"]').textContent = T[lang].offEyebrow;
+  statusEl.textContent = T[lang].offStatus;
+  chat.querySelectorAll(".msg, .typing, .wa-replay, .wa-cta").forEach((el) => el.remove());
+  const tag = document.createElement("div");
+  tag.className = "wa-replay";
+  tag.textContent = T[lang].replay;
+  chat.appendChild(tag);
+  addMessage(T[lang].welcome, "in");
+  const steps = T[lang].transcript;
+  let i = 0;
+  const next = () => {
+    if (i >= steps.length) {
+      setTyping(false);
+      const cta = document.createElement("div");
+      cta.className = "wa-cta";
+      cta.innerHTML = T[lang].offline;
+      chat.appendChild(cta);
+      chat.scrollTop = chat.scrollHeight;
+      return;
+    }
+    const [who, text] = steps[i++];
+    if (who === "in") {
+      setTyping(true);
+      replayTimer = setTimeout(() => { setTyping(false); addMessage(text, "in"); replayTimer = setTimeout(next, 900); }, 1300);
+    } else {
+      addMessage(text, "out");
+      replayTimer = setTimeout(next, 700);
+    }
+  };
+  replayTimer = setTimeout(next, 700);
+}
+</script>
+</body>
+</html>
